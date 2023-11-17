@@ -10,7 +10,7 @@ import (
 	// "time"
 
 	"github.com/Daviskelvin824/OldEgg/config"
-	"github.com/Daviskelvin824/OldEgg/model"
+	"github.com/Daviskelvin824/OldEgg/models"
 	"github.com/gin-gonic/gin"
 	// "github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
