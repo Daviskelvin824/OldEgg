@@ -9,7 +9,7 @@ import (
 	// "strconv"
 	// "time"
 
-	"github.com/Daviskelvin824/OldEgg/config"
+	// "github.com/Daviskelvin824/OldEgg/config"
 	"github.com/Daviskelvin824/OldEgg/model"
 	"github.com/gin-gonic/gin"
 	// "github.com/golang-jwt/jwt"
