@@ -20,7 +20,7 @@ import (
 	
 // }
 
-func insertUser(c *gin.Context){
+func InsertUser(c *gin.Context){
 	var newUser model.User;
 	c.ShouldBindJSON(&newUser)
 
