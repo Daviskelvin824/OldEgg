@@ -1,7 +1,7 @@
 package config
 
 import(
-	"github.com/Daviskelvin824/OldEgg/model"
+	"github.com/Daviskelvin824/OldEgg/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
