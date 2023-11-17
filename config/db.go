@@ -12,7 +12,7 @@ func migrate(){
 	DB.AutoMigrate(&model.User{})
 }
 
-func connect(){
+func Connect(){
 	psqlInfo := "host=localhost user=postgres password=postgres dbname=oldegg port=5432 TimeZone=Asia/Shanghai"
 	db, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
 
