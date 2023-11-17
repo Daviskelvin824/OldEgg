@@ -8,7 +8,7 @@ import (
 
 func UserRoute(router *gin.Engine) {
 
-	router.POST("/sign-up", controller.insertUser)
+	router.POST("/signup", controller.insertUser)
 	// router.POST("/sign-in", controller.SignIn)
 	// router.POST("/update-user", controller.UpdateUser)
 	// router.POST("/authenticate", middleware.RequireAuthentication, controller.Authenticate)
