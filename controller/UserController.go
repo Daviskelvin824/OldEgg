@@ -94,3 +94,48 @@ func InsertUser(c *gin.Context){
 	c.JSON(200, &newUser)
 
 }
+
+
+func SignIn(c *gin.Context) {
+
+	var attempt, user model.User
+	c.ShouldBindJSON(&attempt)
+
+	if attempt.Email == "" || attempt.Password == "" {
+		c.String(200, "Fields Cannot be Empty")
+		return
+	}
+
+	config.DB.First(&user, "email = ?", attempt.Email)
+
+	if user.ID == 0 {
+		c.String(200, "Invalid Email Address")
+		return
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(attempt.Password))
+	if err != nil {
+		c.String(200, "Invalid Password")
+		return
+	}
+
+	if user.Status != "Active" {
+		c.String(200, "You Are Banned")
+		return
+	}
+}
+
+// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+// 		"subject": user.Email,
+// 		"expire":  time.Now().Add(time.Hour * 24 * 30).Unix(),
+// 	})
+
+// 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRETKEY")))
+// 	if err != nil {
+// 		c.String(200, "Failed to Create Token")
+// 		return
+// 	}
+
+// 	c.String(200, tokenString)
+
+// }
