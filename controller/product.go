@@ -344,7 +344,7 @@ func GetProductByID(c *gin.Context) {
 		ProductPrice       float64  `json:"product_price"`
 		ProductStock       int      `json:"product_stock"`
 		ProductDetails     string   `json:"product_details"`
-		ProductImageLinks  []string `json:"product_image_links"`
+		ProductLinks       string `json:"product_link"`
 	}
 
 	var product Product
@@ -356,19 +356,20 @@ func GetProductByID(c *gin.Context) {
 	product.ProductPrice = rawProduct.ProductPrice
 	product.ProductStock = rawProduct.ProductStock
 	product.ProductDetails = rawProduct.ProductDetails
+	product.ProductLinks = rawProduct.ProductLink
 
 	// Get ALl Image Links
-	var productImageLinks []models.ProductImageLink
-	config.DB.Model(models.ProductImageLink{}).Where("product_id = ?", product.ProductID).Find(&productImageLinks)
+	// var productImageLinks []models.ProductImageLink
+	// config.DB.Model(models.ProductImageLink{}).Where("product_id = ?", product.ProductID).Find(&productImageLinks)
 
-	var imageLinks []string
-	productImageLinksLength := len(productImageLinks)
-	for j := 0; j < productImageLinksLength; j++ {
+	// var imageLinks []string
+	// productImageLinksLength := len(productImageLinks)
+	// for j := 0; j < productImageLinksLength; j++ {
 
-		imageLinks = append(imageLinks, productImageLinks[j].Link)
+	// 	imageLinks = append(imageLinks, productImageLinks[j].Link)
 
-	}
-	product.ProductImageLinks = imageLinks
+	// }
+	// product.ProductImageLinks = imageLinks
 
 	c.JSON(200, product)
 
