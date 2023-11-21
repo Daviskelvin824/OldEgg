@@ -309,6 +309,71 @@ func CreateProduct(c *gin.Context) {
 // 	c.JSON(200, &parsedProducts)
 
 // }
+func GetProductByID(c *gin.Context) {
+
+	type RequestBody struct {
+		ProductID string `json:"product_id"`
+	}
+
+	var requestBody RequestBody
+	c.ShouldBindJSON(&requestBody)
+
+	var rawProduct models.Product
+	config.DB.First(&rawProduct, "product_id = ?", requestBody.ProductID)
+
+	if rawProduct.ID == 0 {
+		c.String(200, "Product Not Found")
+		return
+	}
+
+	// Validate Banned Shop
+	var shop models.Shop
+	config.DB.Model(models.Shop{}).Where("id = ?", rawProduct.ShopID).First(&shop)
+
+	if shop.Status == "Banned" {
+		c.String(200, "Shop is Banned")
+		return
+	}
+
+	type Product struct {
+		ProductID          string   `json:"product_id"`
+		ShopID             int      `json:"shop_id"`
+		ProductCategoryID  int      `json:"product_category_id"`
+		ProductName        string   `json:"product_name"`
+		ProductDescription string   `json:"product_description"`
+		ProductPrice       float64  `json:"product_price"`
+		ProductStock       int      `json:"product_stock"`
+		ProductDetails     string   `json:"product_details"`
+		ProductImageLinks  []string `json:"product_image_links"`
+	}
+
+	var product Product
+	product.ProductID = rawProduct.ProductID
+	product.ShopID = rawProduct.ShopID
+	product.ProductCategoryID = rawProduct.ProductCategoryID
+	product.ProductName = rawProduct.ProductName
+	product.ProductDescription = rawProduct.ProductDescription
+	product.ProductPrice = rawProduct.ProductPrice
+	product.ProductStock = rawProduct.ProductStock
+	product.ProductDetails = rawProduct.ProductDetails
+
+	// Get ALl Image Links
+	var productImageLinks []models.ProductImageLink
+	config.DB.Model(models.ProductImageLink{}).Where("product_id = ?", product.ProductID).Find(&productImageLinks)
+
+	var imageLinks []string
+	productImageLinksLength := len(productImageLinks)
+	for j := 0; j < productImageLinksLength; j++ {
+
+		imageLinks = append(imageLinks, productImageLinks[j].Link)
+
+	}
+	product.ProductImageLinks = imageLinks
+
+	c.JSON(200, product)
+
+}
+
 
 func GetRecommendedProducts(c *gin.Context) {
 
