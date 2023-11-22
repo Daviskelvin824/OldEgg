@@ -9,7 +9,11 @@ import(
 var DB *gorm.DB
 
 func migrate(){
-	DB.AutoMigrate(&model.User{})
+	DB.AutoMigrate(&models.User{})
+	DB.AutoMigrate(&models.Product{})
+	DB.AutoMigrate(&models.ProductCategory{})
+	DB.AutoMigrate(&models.SearchQuery{})
+	DB.AutoMigrate(&models.Shop{})
 }
 
 func Connect(){
