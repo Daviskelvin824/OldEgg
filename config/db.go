@@ -14,6 +14,10 @@ func migrate(){
 	DB.AutoMigrate(&models.ProductCategory{})
 	DB.AutoMigrate(&models.SearchQuery{})
 	DB.AutoMigrate(&models.Shop{})
+	DB.AutoMigrate(&models.OneTimeCode{})
+	DB.AutoMigrate(&models.Cart{})
+	DB.AutoMigrate(&models.Wishlist{})
+	DB.AutoMigrate(&models.WishlistDetail{})
 }
 
 func Connect(){
