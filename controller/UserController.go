@@ -3,25 +3,28 @@ package controller
 import (
 	// "fmt"
 	// "math/rand"
+	// "log"
+	// "fmt"
 	"net/mail"
 	// "net/smtp"
-	// "os"
+	"os"
 	// "strconv"
-	// "time"
+	"time"
 
 	"github.com/Daviskelvin824/OldEgg/config"
 	"github.com/Daviskelvin824/OldEgg/models"
 	"github.com/gin-gonic/gin"
-	// "github.com/golang-jwt/jwt"
+
+	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // func GetUser(c *gin.Context){
-	
+
 // }
 
 func InsertUser(c *gin.Context){
-	var newUser model.User;
+	var newUser models.User;
 	c.ShouldBindJSON(&newUser)
 
 	if newUser.FirstName == "" {
@@ -61,7 +64,7 @@ func InsertUser(c *gin.Context){
 
 
 	var countEmail int64 = 0
-	config.DB.Model(model.User{}).Where("email = ?", newUser.Email).Count(&countEmail)
+	config.DB.Model(models.User{}).Where("email = ?", newUser.Email).Count(&countEmail)
 
 	_, err := mail.ParseAddress(newUser.Email)
 	if err != nil {
@@ -75,10 +78,11 @@ func InsertUser(c *gin.Context){
 	}
 
 	var countPhone int64 = 0
-	config.DB.Model(model.User{}).Where("mobile_phone_number = ?", newUser.MobilePhoneNumber).Count(&countPhone)
+	config.DB.Model(models.User{}).Where("mobile_phone_number = ?", newUser.MobilePhoneNumber).Count(&countPhone)
 
 	if countPhone != 0 {
 		c.String(200, "Mobile Phone Number is Not Unique")
+		
 		return
 	}
 
@@ -97,10 +101,10 @@ func InsertUser(c *gin.Context){
 
 
 func SignIn(c *gin.Context) {
-
-	var attempt, user model.User
+	
+	var attempt, user models.User
 	c.ShouldBindJSON(&attempt)
-
+	
 	if attempt.Email == "" || attempt.Password == "" {
 		c.String(200, "Fields Cannot be Empty")
 		return
@@ -123,19 +127,52 @@ func SignIn(c *gin.Context) {
 		c.String(200, "You Are Banned")
 		return
 	}
+
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"subject": user.Email,
+		"expire":  time.Now().Add(time.Hour * 24 * 30).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte(os.Getenv("SECRETKEY")))
+	if err != nil {
+		c.String(200, "Failed to Create Token")
+		return
+	}
+
+	c.String(200, tokenString)
+
 }
 
-// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-// 		"subject": user.Email,
-// 		"expire":  time.Now().Add(time.Hour * 24 * 30).Unix(),
-// 	})
+func Authenticate(c *gin.Context) {
 
-// 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRETKEY")))
-// 	if err != nil {
-// 		c.String(200, "Failed to Create Token")
-// 		return
-// 	}
+	user, _ := c.Get("user")
+	c.JSON(200, user)
 
-// 	c.String(200, tokenString)
+}
 
-// }
+func SubscribeToNewsletter(c *gin.Context) {
+
+	var user models.User
+	c.ShouldBindJSON(&user)
+
+	var temp models.User
+	config.DB.Model(&models.User{}).Where("email = ?", user.Email).First(&temp)
+
+	if temp.ID == 0 {
+		c.String(200, "Email Not Found")
+		return
+	}
+
+	if temp.SubscribedToEmailOffersAndDiscounts {
+		c.String(200, "You Are Already Subscribed")
+		return
+	}
+
+	config.DB.Model(&models.User{}).Where("email = ?", user.Email).Updates(map[string]interface{}{
+		"subscribed_to_email_offers_and_discounts": true,
+	})
+
+	c.String(200, "You Are Now Subscribed")
+
+}
