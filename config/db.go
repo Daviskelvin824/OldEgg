@@ -18,6 +18,10 @@ func migrate(){
 	DB.AutoMigrate(&models.Cart{})
 	DB.AutoMigrate(&models.Wishlist{})
 	DB.AutoMigrate(&models.WishlistDetail{})
+	DB.AutoMigrate(&models.SavedForLaterItems{})
+	DB.AutoMigrate(&models.Address{})
+	DB.AutoMigrate(&models.DeliveryProvider{})
+	DB.AutoMigrate(&models.PaymentMethod{})
 }
 
 func Connect(){
