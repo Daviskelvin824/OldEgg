@@ -1,15 +1,13 @@
 package controller
 
 import (
-	// "fmt"
-	// "os"
-	"strconv"
-	// "time"
+	"os"
+	"time"
 
 	"github.com/Daviskelvin824/OldEgg/config"
 	"github.com/Daviskelvin824/OldEgg/models"
 	"github.com/gin-gonic/gin"
-	// "github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -97,25 +95,8 @@ func GetTopShops(c *gin.Context) {
 	var requestBody RequestBody
 	c.ShouldBindJSON(&requestBody)
 
-	// Top With Most Items Sold
-	// query := `
-	// 	SELECT SUM(quantity), shop_id
-	// 	FROM (
-	// 		SELECT OD.product_id,
-	// 			SUM(quantity) AS quantity,
-	// 			shop_id
-	// 		FROM order_details OD JOIN products PS ON
-	// 			OD.product_id = PS.product_id
-	// 		GROUP BY OD.product_id, shop_id
-	// 	) AS sub
-	// 	GROUP BY shop_id
-	// 	ORDER BY SUM(quantity) DESC
-	// 	LIMIT ` + strconv.Itoa(requestBody.Limit)
-
-
-	query := `SELECT DISTINCT shop_id
-	FROM products;`+strconv.Itoa(requestBody.Limit)
-	rows, _ := config.DB.Raw(query).Rows()
+	query := `SELECT DISTINCT shop_id FROM products LIMIT ?;`
+    rows, _ := config.DB.Raw(query, requestBody.Limit).Rows()
 
 	type Result struct {
 		// Sum    int  `json:"sum"`
@@ -140,5 +121,60 @@ func GetTopShops(c *gin.Context) {
 	config.DB.Model(models.Shop{}).Where("id IN ?", shopIds).Find(&shops)
 
 	c.JSON(200, shops)
+
+}
+
+func GetShopByID(c *gin.Context) {
+
+	type RequestBody struct {
+		ID int64 `json:"id"`
+	}
+
+	var requestBody RequestBody
+	c.ShouldBindJSON(&requestBody)
+
+	var shop models.Shop
+	config.DB.Model(models.Shop{}).Where("id = ?", requestBody.ID).First(&shop)
+
+	c.JSON(200, shop)
+
+}
+
+func ShopSignIn(c *gin.Context) {
+
+	var attempt models.User
+	c.ShouldBindJSON(&attempt)
+
+	var shop models.Shop
+	config.DB.First(&shop, "shop_email = ?", attempt.Email)
+
+	if shop.ID == 0 {
+		c.String(200, "Invalid Email Address")
+		return
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(shop.ShopPassword), []byte(attempt.Password))
+	if err != nil {
+		c.String(200, "Invalid Password")
+		return
+	}
+
+	if shop.Status != "Active" {
+		c.String(200, "You Are Banned")
+		return
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"subject": shop.ShopEmail,
+		"expire":  time.Now().Add(time.Hour * 24 * 30).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte(os.Getenv("SECRETKEY")))
+	if err != nil {
+		c.String(200, "Failed to Create Token")
+		return
+	}
+
+	c.String(200, tokenString)
 
 }
