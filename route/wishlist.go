@@ -12,7 +12,7 @@ func WishlistRoute(router *gin.Engine) {
 	router.POST("/update-wishlist", controller.UpdateWishlist)
 	router.POST("/update-item-quantity", controller.UpdateItemQuantity)
 
-	// router.POST("/get-wishlists-with-details", controller.GetWishlistsWithDetails)
+	router.POST("/get-wishlists-with-details", controller.GetWishlistsWithDetails)
 	router.POST("/get-wishlist-details-by-id", controller.GetWishlistDetailsByID)
 
 	router.POST("/add-to-wishlist", controller.AddToWishlist)
