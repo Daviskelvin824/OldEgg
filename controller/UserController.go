@@ -1,10 +1,7 @@
 package controller
 
 import (
-	// "fmt"
 	"math/rand"
-	// "log"
-	// "fmt"
 	"net/mail"
 	"net/smtp"
 	"os"
@@ -18,10 +15,6 @@ import (
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
-
-// func GetUser(c *gin.Context){
-
-// }
 
 func InsertUser(c *gin.Context){
 	var newUser models.User;
