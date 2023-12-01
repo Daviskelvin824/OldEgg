@@ -22,6 +22,8 @@ func migrate(){
 	DB.AutoMigrate(&models.Address{})
 	DB.AutoMigrate(&models.DeliveryProvider{})
 	DB.AutoMigrate(&models.PaymentMethod{})
+	DB.AutoMigrate(&models.OrderDetail{})
+	DB.AutoMigrate(&models.OrderHeader{})
 }
 
 func Connect(){
